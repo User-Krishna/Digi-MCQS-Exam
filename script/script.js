@@ -168,7 +168,7 @@ function getRandom(arr, n) {
 // ---------------- EXAM INIT ----------------
 let selected = [];
 let answers = {};
-let time = 1800;
+let time = 1200;
 let voiceAlertTriggered5Min = false;
 let voiceAlertTriggered1Min = false;
 let examStartedVoiceTriggered = false;
