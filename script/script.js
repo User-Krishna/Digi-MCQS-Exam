@@ -1116,7 +1116,7 @@ function showResult() {
     }
   });
 
-  html += `<h3>Score: ${score}/30</h3>`;
+  html += `<h3>Score: ${score}/25</h3>`;
 
   document.getElementById("result").innerHTML = html;
 
@@ -1124,7 +1124,6 @@ function showResult() {
   document.getElementById("pdfBtn").style.display = "inline-block";
 }
 
-// ---------------- PDF DOWNLOAD ----------------
 // ---------------- PDF DOWNLOAD ----------------
 function downloadPDF() {
 
