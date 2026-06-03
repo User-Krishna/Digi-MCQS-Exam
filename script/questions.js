@@ -39,7 +39,7 @@ const allQuestions = [
       "F2",
       "Alt + Tab"
     ],
-    correct: "Ctrl + S and saved in FlockMod automatically"
+    correct: "Print Screen and paste in paint"
   },
   {
     question: "Which activity is an example of physical collaboration?",
