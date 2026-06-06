@@ -40,7 +40,7 @@ const students = [
   { name: "Aliyas Rai", password: "DARCH003", section: "Darchula" },
   { name: "Anup Shrestha", password: "DARCH004", section: "Darchula" },
   { name: "Dibyant Giri", password: "DARCH005", section: "Darchula" },
-  { name: "Gaurav Kathyat", password: "DARCH006", section: "Darchula" },
+  { name: "Gaurav Kathayat", password: "DARCH006", section: "Darchula" },
   { name: "Gaurab Thapa", password: "DARCH007", section: "Darchula" },
   { name: "Ishuhang Rai", password: "DARCH008", section: "Darchula" },
   { name: "Ivan Ranabhat", password: "DARCH009", section: "Darchula" },
