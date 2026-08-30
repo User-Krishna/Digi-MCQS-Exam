@@ -168,7 +168,7 @@ function getRandom(arr, n) {
 // ---------------- EXAM INIT ----------------
 let selected = [];
 let answers = {};
-let time = 1200;
+let time = 3600;
 let voiceAlertTriggered5Min = false;
 let voiceAlertTriggered1Min = false;
 let examStartedVoiceTriggered = false;
@@ -177,33 +177,45 @@ function initExam() {
 
   if (!checkStart()) return;
 
-  selected = getRandom(allQuestions, 30);
+  // Load ALL 147 questions in random order
+  selected = [...allQuestions].sort(() => Math.random() - 0.5);
 
   let qDiv = document.getElementById("questions");
-  let nav = document.getElementById("nav"); // sidebar
+  let nav = document.getElementById("nav");
 
   qDiv.innerHTML = "";
   nav.innerHTML = "";
 
   selected.forEach((q, i) => {
 
-    // 🔥 QUESTION BLOCK WITH ID
     let html = `<div id="q${i + 1}" class="q-box">`;
+
     html += `<p>${i + 1}. ${q.question}</p>`;
 
-    q.options.forEach(opt => {
+    // Show image if question has one
+    if (q.image) {
       html += `
-      <label>
-        <input type="radio" name="q${i}" value="${opt}"
-        onchange="saveAns(${i},'${opt}')">
-        ${opt}
-      </label><br>`;
+        <img src="${q.image}" 
+             class="question-image" 
+             alt="Question image">
+      `;
+    }
+
+    // Shuffle options
+    const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+    shuffledOptions.forEach(opt => {
+      html += `
+        <label>
+          <input type="radio" name="q${i}" value="${opt}"
+          onchange="saveAns(${i},'${opt}')">
+          ${opt}
+        </label><br>`;
     });
 
     html += `</div>`;
     qDiv.innerHTML += html;
 
-    // 🔥 CREATE NAV BUTTON
     let btn = document.createElement("button");
     btn.innerText = i + 1;
     btn.className = "q-btn";
@@ -217,15 +229,12 @@ function initExam() {
     nav.appendChild(btn);
   });
 
-  // 🔥 ADD CAMERA MONITOR WITH EYE TRACKING & SOUND
   addCameraMonitorWithSound();
-
   startTimer();
 
-  // 🔥 VOICE: EXAM STARTED
   if (!examStartedVoiceTriggered) {
     setTimeout(() => {
-      speakMessage("Exam started. Good luck! You have 20 minutes to complete your exam.");
+      speakMessage("Exam started. Good luck! You have 60 minutes to complete your exam.");
       examStartedVoiceTriggered = true;
     }, 1000);
   }
@@ -412,14 +421,10 @@ function addCameraMonitorWithSound() {
 
   // Canvas for motion detection
   const canvas = document.createElement("canvas");
-  canvas.style.cssText = `
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  `;
+
+canvas.style.cssText = `
+  display: none;
+`;
 
   // Recording indicator
   const recordingIndicator = document.createElement("div");
@@ -1116,7 +1121,7 @@ function showResult() {
     }
   });
 
-  html += `<h3>Score: ${score}/25</h3>`;
+ html += `<h3>Score: ${score}/${qs.length}</h3>`;
 
   document.getElementById("result").innerHTML = html;
 
