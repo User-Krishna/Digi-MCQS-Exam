@@ -98,7 +98,6 @@ const students = [
   { name: "Subhan Bajagain", password: "DHAD028", section: "Dhading" },
   { name: "Sumit Shrestha", password: "DHAD029", section: "Dhading" },
   { name: "Utkrisha Karki", password: "DHAD030", section: "Dhading" }
-
 ];
 
 // LOGIN
@@ -1130,9 +1129,11 @@ function showResult() {
 }
 
 // ---------------- PDF DOWNLOAD ----------------
-function downloadPDF() {
+
+async function downloadPDF() {
 
   const { jsPDF } = window.jspdf || {};
+
   if (!jsPDF) {
     alert("PDF library missing!");
     return;
@@ -1140,177 +1141,1036 @@ function downloadPDF() {
 
   const qs = JSON.parse(localStorage.getItem("questions")) || [];
   const ans = JSON.parse(localStorage.getItem("answers")) || {};
-  const student = localStorage.getItem("student") || "Unknown Student";
-  const section = localStorage.getItem("studentSection") || "Not Assigned"; // Get section from localStorage
+  const student =
+    localStorage.getItem("student") || "Unknown Student";
+  const section =
+    localStorage.getItem("studentSection") || "Not Assigned";
 
-  let doc = new jsPDF();
+  if (qs.length === 0) {
+    alert("No questions found!");
+    return;
+  }
+
+  // =====================================================
+  // PDF
+  // =====================================================
+
+  const doc = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = 210;
+  const pageHeight = 297;
+
+  const leftMargin = 10;
+  const rightMargin = 10;
+
+  const usableWidth =
+    pageWidth - leftMargin - rightMargin;
+
+  const bottomMargin = 18;
+
   let y = 15;
 
-  // ================= HEADER =================
+  const labels = ["a)", "b)", "c)", "d)"];
+
+
+  // =====================================================
+  // NEW PAGE
+  // =====================================================
+
+  function newPage() {
+    doc.addPage();
+    y = 15;
+  }
+
+
+  // =====================================================
+  // LOAD IMAGE
+  // =====================================================
+
+  function loadImage(src) {
+
+    return new Promise((resolve, reject) => {
+
+      if (!src) {
+        reject(new Error("No image source"));
+        return;
+      }
+
+      const img = new Image();
+
+      img.onload = function () {
+        resolve(img);
+      };
+
+      img.onerror = function () {
+        reject(
+          new Error("Could not load image: " + src)
+        );
+      };
+
+      img.src = src;
+    });
+  }
+
+
+  // =====================================================
+  // GET IMAGE DIMENSIONS
+  // =====================================================
+
+  async function getImageSize(imageSrc) {
+
+    if (!imageSrc) {
+      return null;
+    }
+
+    try {
+
+      const img = await loadImage(imageSrc);
+
+      const originalWidth =
+        img.naturalWidth || img.width;
+
+      const originalHeight =
+        img.naturalHeight || img.height;
+
+      if (!originalWidth || !originalHeight) {
+        return null;
+      }
+
+      const maxWidth = 170;
+      const maxHeight = 85;
+
+      let imageWidth = maxWidth;
+
+      let imageHeight =
+        (originalHeight / originalWidth) *
+        imageWidth;
+
+
+      // If image is too tall
+      if (imageHeight > maxHeight) {
+
+        imageHeight = maxHeight;
+
+        imageWidth =
+          (originalWidth / originalHeight) *
+          imageHeight;
+      }
+
+
+      // Final width protection
+      if (imageWidth > maxWidth) {
+
+        imageWidth = maxWidth;
+
+        imageHeight =
+          (originalHeight / originalWidth) *
+          imageWidth;
+      }
+
+
+      return {
+        width: imageWidth,
+        height: imageHeight
+      };
+
+    } catch (error) {
+
+      console.warn(
+        "Image could not be loaded:",
+        imageSrc
+      );
+
+      return null;
+    }
+  }
+
+
+  // =====================================================
+  // GET IMAGE FORMAT
+  // =====================================================
+
+  function getImageFormat(src) {
+
+    if (!src) {
+      return "JPEG";
+    }
+
+    const lower =
+      src.toLowerCase();
+
+    if (
+      lower.includes(".png") ||
+      lower.startsWith("data:image/png")
+    ) {
+      return "PNG";
+    }
+
+    if (
+      lower.includes(".webp") ||
+      lower.startsWith("data:image/webp")
+    ) {
+      return "WEBP";
+    }
+
+    return "JPEG";
+  }
+
+
+  // =====================================================
+  // HEADER
+  // =====================================================
+
   doc.setFillColor(15, 32, 39);
-  doc.rect(0, 0, 210, 40, "F");
 
+  doc.rect(
+    0,
+    0,
+    pageWidth,
+    40,
+    "F"
+  );
+
+
+  // School logo
   try {
-    doc.addImage("images/schoolLogo.jpg", "PNG", 10, 6, 25, 25);
-  } catch (e) { }
 
-  doc.setTextColor(255, 255, 255);
+    doc.addImage(
+      "images/schoolLogo.jpg",
+      "JPEG",
+      10,
+      6,
+      25,
+      25
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "School logo could not be loaded."
+    );
+  }
+
+
+  // School name
+  doc.setTextColor(
+    255,
+    255,
+    255
+  );
+
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
+
   doc.setFontSize(15);
-  doc.text("BRIGHT FUTURE SCHOOL", 45, 15);
+
+  doc.text(
+    "BRIGHT FUTURE SCHOOL",
+    45,
+    15
+  );
+
+
+  // Address
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
 
   doc.setFontSize(10);
-  doc.text("Satdobato, Lalitpur, Nepal", 45, 22);
+
+  doc.text(
+    "Satdobato, Lalitpur, Nepal",
+    45,
+    22
+  );
+
+
+  // Report title
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
 
   doc.setFontSize(12);
-  doc.text("MCQ Examination Result Report", 45, 32);
+
+  doc.text(
+    "MCQ Examination Result Report",
+    45,
+    32
+  );
+
+
+  // =====================================================
+  // STUDENT INFORMATION
+  // =====================================================
 
   y = 50;
 
-  // ================= STUDENT INFO WITH SECTION =================
-  doc.setTextColor(200, 0, 0);
+
+  // Student
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
+
   doc.setFontSize(12);
-  doc.text(`Student: ${student}`, 10, y);
+
+  doc.setTextColor(
+    200,
+    0,
+    0
+  );
+
+  doc.text(
+    `Student: ${student}`,
+    leftMargin,
+    y
+  );
+
   y += 7;
 
-  doc.setTextColor(0, 0, 0);
+
+  // Class
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
+
   doc.setFontSize(10);
-  doc.text(`Class: 5`, 10, y);
+
+  doc.setTextColor(
+    0,
+    0,
+    0
+  );
+
+  doc.text(
+    "Class: 5",
+    leftMargin,
+    y
+  );
+
   y += 5;
-  doc.text(`Section: ${section}`, 10, y);  // SECTION ADDED HERE
+
+
+  // Section
+  doc.text(
+    `Section: ${section}`,
+    leftMargin,
+    y
+  );
+
   y += 5;
-  doc.text(`Exam Type: MCQ`, 10, y);
+
+
+  // Exam type
+  doc.text(
+    "Exam Type: MCQ",
+    leftMargin,
+    y
+  );
+
   y += 5;
-  doc.text(`Date: ${new Date().toLocaleString()}`, 10, y);
+
+
+  // Date
+  doc.text(
+    `Date: ${new Date().toLocaleString()}`,
+    leftMargin,
+    y
+  );
+
   y += 8;
 
-  doc.line(10, y, 200, y);
+
+  // Line
+  doc.line(
+    leftMargin,
+    y,
+    pageWidth - rightMargin,
+    y
+  );
+
   y += 8;
 
-  // ================= QUESTIONS =================
-  const labels = ["a)", "b)", "c)", "d)"];
 
-  qs.forEach((q, i) => {
+  // =====================================================
+  // QUESTIONS
+  // =====================================================
 
-    if (y > 250) {
-      doc.addPage();
-      y = 15;
+  for (let i = 0; i < qs.length; i++) {
+
+    const q = qs[i];
+
+    // ---------------------------------------------------
+    // QUESTION TEXT
+    // ---------------------------------------------------
+
+    doc.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    doc.setFontSize(10);
+
+    const questionText =
+      `Q${i + 1}. ${q.question}`;
+
+    const questionLines =
+      doc.splitTextToSize(
+        questionText,
+        usableWidth
+      );
+
+    const questionHeight =
+      questionLines.length * 5;
+
+
+    // ---------------------------------------------------
+    // IMAGE SIZE
+    // ---------------------------------------------------
+
+    let imageInfo = null;
+
+    if (q.image) {
+
+      imageInfo =
+        await getImageSize(q.image);
     }
 
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Q${i + 1}. ${q.question}`, 10, y);
-    y += 6;
+
+    let imageHeight = 0;
+
+    let imageSpacing = 0;
+
+    if (imageInfo) {
+
+      imageHeight =
+        imageInfo.height;
+
+      imageSpacing = 7;
+    }
+
+
+    // ---------------------------------------------------
+    // OPTIONS HEIGHT
+    // ---------------------------------------------------
+
+    const optionData = [];
+
+    let optionsTotalHeight = 0;
+
+
+    for (
+      let index = 0;
+      index < q.options.length;
+      index++
+    ) {
+
+      const opt = q.options[index];
+
+      doc.setFont(
+        "helvetica",
+        "normal"
+      );
+
+      doc.setFontSize(10);
+
+
+      const optionText =
+        `${labels[index] || `${index + 1}.`} ${opt}`;
+
+
+      /*
+       * 165 mm instead of the full width.
+       * This leaves enough room for OK / X.
+       */
+      const optionLines =
+        doc.splitTextToSize(
+          optionText,
+          165
+        );
+
+
+      const optionHeight =
+        optionLines.length * 5;
+
+
+      optionData.push({
+        text: optionText,
+        lines: optionLines,
+        height: optionHeight
+      });
+
+
+      optionsTotalHeight +=
+        optionHeight + 1;
+    }
+
+
+    // ---------------------------------------------------
+    // TOTAL QUESTION HEIGHT
+    // ---------------------------------------------------
+
+    /*
+     * This is the important part.
+     *
+     * We calculate:
+     *
+     * Question
+     * + image
+     * + all options
+     * + spacing
+     *
+     * BEFORE drawing anything.
+     */
+
+    const totalQuestionHeight =
+      questionHeight +
+      3 +
+      imageHeight +
+      imageSpacing +
+      optionsTotalHeight +
+      4;
+
+
+    // ---------------------------------------------------
+    // CHECK COMPLETE QUESTION
+    // ---------------------------------------------------
+
+    /*
+     * If the COMPLETE question does not fit,
+     * move the entire question to the next page.
+     */
+
+    if (
+      y + totalQuestionHeight >
+      pageHeight - bottomMargin
+    ) {
+
+      newPage();
+    }
+
+
+    // ===================================================
+    // DRAW QUESTION
+    // ===================================================
+
+    doc.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    doc.setFontSize(10);
+
+    doc.setTextColor(
+      0,
+      0,
+      0
+    );
+
+
+    doc.text(
+      questionLines,
+      leftMargin,
+      y
+    );
+
+
+    y += questionHeight + 3;
+
+
+    // ===================================================
+    // DRAW QUESTION IMAGE
+    // ===================================================
+
+    if (imageInfo) {
+
+      try {
+
+        const imageX =
+          leftMargin +
+          (
+            usableWidth -
+            imageInfo.width
+          ) / 2;
+
+
+        const imageFormat =
+          getImageFormat(q.image);
+
+
+        doc.addImage(
+          q.image,
+          imageFormat,
+          imageX,
+          y,
+          imageInfo.width,
+          imageInfo.height
+        );
+
+
+        y +=
+          imageInfo.height +
+          imageSpacing;
+
+      } catch (error) {
+
+        console.warn(
+          "Could not add question image:",
+          q.image
+        );
+      }
+    }
+
+
+    // ===================================================
+    // DRAW OPTIONS
+    // ===================================================
 
     const userAns = ans[i];
 
-    q.options.forEach((opt, index) => {
 
-      if (y > 250) {
-        doc.addPage();
-        y = 15;
-      }
+    for (
+      let index = 0;
+      index < optionData.length;
+      index++
+    ) {
 
-      let isCorrect = opt === q.correct;
-      let isUser = opt === userAns;
+      const opt =
+        q.options[index];
 
-      doc.setTextColor(0, 0, 0);
+      const data =
+        optionData[index];
+
+
+      const isCorrect =
+        opt === q.correct;
+
+      const isUser =
+        opt === userAns;
+
 
       let statusText = "";
 
-      // ================= LOGIC =================
-      if (userAns === q.correct) {
+
+      // -------------------------------------------------
+      // ANSWER STATUS
+      // -------------------------------------------------
+
+      if (
+        userAns === q.correct
+      ) {
 
         if (isCorrect) {
-          doc.setFillColor(210, 255, 210);
-          doc.rect(10, y - 4, 180, 6, "F");
-          doc.setTextColor(0, 120, 0);
+
           statusText = "OK";
         }
 
-      }
-      else if (userAns && userAns !== q.correct) {
+      } else if (
+        userAns &&
+        userAns !== q.correct
+      ) {
 
         if (isUser) {
-          doc.setFillColor(255, 200, 200);
-          doc.rect(10, y - 4, 180, 6, "F");
-          doc.setTextColor(200, 0, 0);
+
           statusText = "X";
-        }
-        else if (isCorrect) {
-          doc.setFillColor(210, 255, 210);
-          doc.rect(10, y - 4, 180, 6, "F");
-          doc.setTextColor(0, 120, 0);
+
+        } else if (isCorrect) {
+
           statusText = "OK";
         }
       }
 
-      // ================= TEXT =================
-      doc.text(`${labels[index]} ${opt}`, 12, y);
 
-      // ================= RIGHT SIDE MARK =================
-      if (statusText !== "") {
-        doc.setTextColor(statusText === "OK" ? 0 : 200, statusText === "OK" ? 120 : 0, 0);
-        doc.text(statusText, 185, y); // right side mark
+      // -------------------------------------------------
+      // HIGHLIGHT
+      // -------------------------------------------------
+
+      if (statusText === "OK") {
+
+        doc.setFillColor(
+          210,
+          255,
+          210
+        );
+
+        doc.rect(
+          leftMargin,
+          y - 4,
+          usableWidth,
+          data.height + 2,
+          "F"
+        );
+
+      } else if (
+        statusText === "X"
+      ) {
+
+        doc.setFillColor(
+          255,
+          200,
+          200
+        );
+
+        doc.rect(
+          leftMargin,
+          y - 4,
+          usableWidth,
+          data.height + 2,
+          "F"
+        );
       }
 
-      y += 6;
-    });
 
-    y += 3;
-  });
+      // -------------------------------------------------
+      // OPTION TEXT COLOR
+      // -------------------------------------------------
 
-  // ================= FINAL SCORE =================
-  y += 8;
+      if (
+        statusText === "OK"
+      ) {
+
+        doc.setTextColor(
+          0,
+          120,
+          0
+        );
+
+      } else if (
+        statusText === "X"
+      ) {
+
+        doc.setTextColor(
+          200,
+          0,
+          0
+        );
+
+      } else {
+
+        doc.setTextColor(
+          0,
+          0,
+          0
+        );
+      }
+
+
+      doc.setFont(
+        "helvetica",
+        "normal"
+      );
+
+      doc.setFontSize(10);
+
+
+      // -------------------------------------------------
+      // OPTION
+      // -------------------------------------------------
+
+      doc.text(
+        data.lines,
+        12,
+        y
+      );
+
+
+      // -------------------------------------------------
+      // OK / X
+      // -------------------------------------------------
+
+      if (
+        statusText !== ""
+      ) {
+
+        if (
+          statusText === "OK"
+        ) {
+
+          doc.setTextColor(
+            0,
+            120,
+            0
+          );
+
+        } else {
+
+          doc.setTextColor(
+            200,
+            0,
+            0
+          );
+        }
+
+
+        doc.setFont(
+          "helvetica",
+          "bold"
+        );
+
+
+        doc.text(
+          statusText,
+          185,
+          y
+        );
+      }
+
+
+      // Move down
+      y +=
+        data.height + 1;
+    }
+
+
+    // ---------------------------------------------------
+    // SPACE AFTER QUESTION
+    // ---------------------------------------------------
+
+    y += 4;
+  }
+
+
+  // =====================================================
+  // FINAL SCORE
+  // =====================================================
 
   let score = 0;
-  qs.forEach((q, i) => {
-    if (ans[i] === q.correct) score++;
-  });
 
-  doc.setDrawColor(0);
-  doc.line(10, y, 200, y);
+
+  qs.forEach(
+    (q, i) => {
+
+      if (
+        ans[i] === q.correct
+      ) {
+
+        score++;
+      }
+    }
+  );
+
+
+  /*
+   * Make sure score has enough room.
+   */
+
+  if (
+    y + 30 >
+    pageHeight - bottomMargin
+  ) {
+
+    newPage();
+  }
+
+
+  y += 5;
+
+
+  // Horizontal line
+  doc.setDrawColor(
+    0,
+    0,
+    0
+  );
+
+  doc.line(
+    leftMargin,
+    y,
+    pageWidth - rightMargin,
+    y
+  );
+
+
   y += 10;
 
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 120);
-  doc.text(`FINAL SCORE: ${score} / ${qs.length}`, 10, y);
 
-  // 🔥 EXTRA SPACE BEFORE VERIFICATION SECTION
+  // Score
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
+
+  doc.setFontSize(12);
+
+  doc.setTextColor(
+    0,
+    0,
+    120
+  );
+
+
+  doc.text(
+    `FINAL SCORE: ${score} / ${qs.length}`,
+    leftMargin,
+    y
+  );
+
+
+  // =====================================================
+  // VERIFICATION SECTION
+  // =====================================================
+
   y += 25;
 
-  // ================= FOOTER =================
 
-  if (y > 240) {
-    doc.addPage();
+  /*
+   * Verification section needs around 25 mm.
+   */
+
+  if (
+    y + 25 >
+    pageHeight - bottomMargin
+  ) {
+
+    newPage();
+
     y = 20;
   }
 
-  doc.setDrawColor(0);
-  doc.line(10, y, 200, y);
+
+  // Line
+  doc.setDrawColor(
+    0,
+    0,
+    0
+  );
+
+  doc.line(
+    leftMargin,
+    y,
+    pageWidth - rightMargin,
+    y
+  );
+
+
   y += 10;
+
 
   doc.setFontSize(10);
 
-  // ================= LEFT SIDE (TEACHER) =================
-  doc.setTextColor(200, 0, 0);
-  doc.setFont(undefined, "bold");
-  doc.text("Verified By:", 10, y);
 
-  doc.setTextColor(0, 120, 0);
-  doc.setFont(undefined, "normal");
-  doc.text("Teacher: Krishna Das", 10, y + 6);
-  doc.text("Phone: 9829782140", 10, y + 12);
-  doc.text("Email: dask84779@gmail.com", 10, y + 18);
+  // =====================================================
+  // TEACHER
+  // =====================================================
 
-  // ================= RIGHT SIDE (PRINCIPAL) =================
-  doc.setTextColor(200, 0, 0);
-  doc.setFont(undefined, "bold");
-  doc.text("Verified By:", 120, y);
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
 
-  doc.setTextColor(0, 0, 150);
-  doc.setFont(undefined, "normal");
-  doc.text("Principal: Kishor Adhikari", 120, y + 6);
-  doc.text("Phone: 9851153746", 120, y + 12);
+  doc.setTextColor(
+    200,
+    0,
+    0
+  );
 
-  const safeName = student.replace(/\s+/g, "_");
-  doc.save(`${safeName}_[${section}]_MCQ_Result.pdf`); // Section added to filename
+
+  doc.text(
+    "Verified By:",
+    10,
+    y
+  );
+
+
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
+
+  doc.setTextColor(
+    0,
+    120,
+    0
+  );
+
+
+  doc.text(
+    "Teacher: Krishna Das",
+    10,
+    y + 6
+  );
+
+
+  doc.text(
+    "Phone: 9829782140",
+    10,
+    y + 12
+  );
+
+
+  doc.text(
+    "Email: dask84779@gmail.com",
+    10,
+    y + 18
+  );
+
+
+  // =====================================================
+  // PRINCIPAL
+  // =====================================================
+
+  doc.setFont(
+    "helvetica",
+    "bold"
+  );
+
+  doc.setTextColor(
+    200,
+    0,
+    0
+  );
+
+
+  doc.text(
+    "Verified By:",
+    120,
+    y
+  );
+
+
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
+
+  doc.setTextColor(
+    0,
+    0,
+    150
+  );
+
+
+  doc.text(
+    "Principal: Kishor Adhikari",
+    120,
+    y + 6
+  );
+
+
+  doc.text(
+    "Phone: 9851153746",
+    120,
+    y + 12
+  );
+
+
+  // =====================================================
+  // SAVE PDF
+  // =====================================================
+
+  const safeName =
+    student.replace(
+      /\s+/g,
+      "_"
+    );
+
+
+  doc.save(
+    `${safeName}_[${section}]_MCQ_Result.pdf`
+  );
 }
