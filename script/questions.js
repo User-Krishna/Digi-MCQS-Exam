@@ -541,7 +541,7 @@ const allQuestions = [
       "A frame"
     ],
     correct: "A cell",
-    image: "/images/L21-2.png"
+    image: "./images/L21-2.png"
   },
   {
     question: "Which of the following correctly describes what a database table is?",
@@ -582,7 +582,7 @@ const allQuestions = [
       "Names and amounts are unmatched"
     ],
     correct: "Names and amounts are unmatched",
-    image: "/images/L21-6.png"
+    image: "./images/L21-6.png"
   },
   {
     question: "Look at this database table and answer the question. A shopkeeper wants to reorder items with stock of 5 or less. Which items need reordering?",
@@ -593,7 +593,7 @@ const allQuestions = [
       "Oranges only"
     ],
     correct: "Bananas and Oranges",
-    image: "/images/L21-7.png"
+    image: "./images/L21-7.png"
   },
   {
     question: "In the grocer database: Eggs cost 0.90, Flour costs 0.66, Sugar costs 0.71, Bread costs 0.65. Which item costs more than Flour but less than Eggs?",
@@ -614,7 +614,7 @@ const allQuestions = [
       "4"
     ],
     correct: "3",
-    image: "/images/L21-9.png"
+    image: "./images/L21-9.png"
   },
   {
     question: "Which student has the highest average score across all three subjects?",
@@ -625,7 +625,7 @@ const allQuestions = [
       "Aiden and Carlos have the same average"
     ],
     correct: "Carlos, with an average of 87",
-    image: "/images/L21-10.png"
+    image: "./images/L21-10.png"
   },
 
 
@@ -720,7 +720,7 @@ const allQuestions = [
       "Before Rock Salt, because its price is lowest"
     ],
     correct: "Before Sugar, because its stock is lower",
-    image: "/images/L22-9.png"
+    image: "./images/L22-9.png"
   },
   {
     question: "Three of these are ways to sort data in a database. Which one is NOT a sorting method?",
@@ -805,7 +805,7 @@ const allQuestions = [
       "Aiden, Carlos, and Ethan"
     ],
     correct: "Aiden and Ethan",
-    image: "/images/L23-7.png"
+    image: "./images/L23-7.png"
   },
   {
     question: "A student enters *Sugar* as criteria. What appears?",
@@ -836,7 +836,7 @@ const allQuestions = [
       "Order 004 and 005"
     ],
     correct: "Order 003 and 005",
-    image: "/images/L23-10.png"
+    image: "./images/L23-10.png"
   },
 
 
@@ -941,7 +941,7 @@ const allQuestions = [
       "Oatmeal with £20.79"
     ],
     correct: "Cinnamon with £73.47",
-    image: "/images/L24-10.png"
+    image: "./images/L24-10.png"
   },
 
 
@@ -1204,7 +1204,7 @@ const allQuestions = [
       "=B2-(C2-D2)"
     ],
     correct: "=B2-C2-D2",
-    image: "/images/L27-5.png"
+    image: "./images/L27-5.png"
   },
   {
     question: "What formula calculates the leftover amount after expenses?",
@@ -1413,7 +1413,7 @@ const allQuestions = [
       "Remove one of the slices"
     ],
     correct: "Add percentage labels to the slices",
-    image: "/images/L29-7.png"
+    image: "./images/L29-7.png"
   },
   {
     question: "Both charts use the same data. Why would Chart A communicate the information more effectively?",
@@ -1424,7 +1424,7 @@ const allQuestions = [
       "It includes useful labels and title"
     ],
     correct: "It includes useful labels and title",
-    image: "/images/L29-8.png"
+    image: "./images/L29-8.png"
   },
   {
     question: "A spreadsheet contains correct survey data. The teacher asks students to improve the presentation without changing the survey results. Which combination of actions is valid?",
@@ -1445,7 +1445,7 @@ const allQuestions = [
       "The pie chart cannot be created."
     ],
     correct: "The pie chart represents only highlighted categories.",
-    image: "/images/L29-10.png"
+    image: "./images/L29-10.png"
   },
 
 
@@ -1460,7 +1460,7 @@ const allQuestions = [
       "The data is missing"
     ],
     correct: "The data does not fit",
-    image: "/images/L30-1.png"
+    image: "./images/L30-1.png"
   },
   {
     question: "Your group has finished creating a spreadsheet and chart. Which action BEST demonstrates careful attention to detail before submission?",
