@@ -1094,7 +1094,7 @@ const allQuestions = [
   {
     question: "A student types a formula to quickly add A1 ($856$) and B1 ($314$). Which mental math strategy helps find the result fastest?",
     options: [
-      "Adding the hundreds ($800+300$) and then the tens ($50+14$)",
+      "Adding the hundreds ($800+300$) and then the tens ($56+14$)",
       "Counting up by ones starting from $856$",
       "Changing the plus sign to a minus sign to work backward",
       "Rounding both numbers to the nearest $100$ first"
