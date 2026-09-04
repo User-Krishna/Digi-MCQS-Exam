@@ -1099,7 +1099,7 @@ const allQuestions = [
       "Changing the plus sign to a minus sign to work backward",
       "Rounding both numbers to the nearest $100$ first"
     ],
-    correct: "Adding the hundreds ($800+300$) and then the tens ($50+14$)"
+    correct: "Adding the hundreds ($800+300$) and then the tens ($56+14$)"
   },
   {
     question: "Five classmates own 3, 5, 2, 4, and 6 pairs of shoes. What spreadsheet formula will calculate the SUM total the fastest?",
